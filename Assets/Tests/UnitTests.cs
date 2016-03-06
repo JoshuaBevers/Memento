@@ -52,7 +52,7 @@ public class UnitTests : MonoBehaviour {
         //Debug.Log(v + " | " + v2);
     }
     [TestMethod]
-    void gameObject()
+    void GameObjectTest()
     {
         GameObject g = new GameObject("Test");
         g.transform.localPosition = new Vector3(1, 2, 3);
@@ -75,8 +75,24 @@ public class UnitTests : MonoBehaviour {
     void hasMomento()
     {
         GameObject g = GameObject.Find("Test");
+        if (g == null)
+        {
+            Debug.Log("hasMomento could not find test object");
+            return;
+        }
         SaveSystem.Memento m = g.GetComponent<SaveSystem.HasMemento>().getMemento();
         Debug.Log(m);
+    }
+    [TestMethod]
+    void WriteMomento()
+    {
+        string filePath = "./Assets/Saves/mem.dat";
+        SaveSystem.Memento m = new SaveSystem.Memento();
+        m.id = 3;
+        SaveSystem.SaveMemento(filePath, m);
+
+        SaveSystem.Memento m2 = SaveSystem.LoadMemento(filePath);
+        Assert.AreEqual((int)m.id, (int)m2.id);
     }
 
     T SerializeObject<T>(T t)

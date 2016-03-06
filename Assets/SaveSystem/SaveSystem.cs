@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 public static class SaveSystem
 {
@@ -29,16 +30,53 @@ public static class SaveSystem
         void LoadMemento(Memento s);
     }
 
+    public static bool SaveMemento(String filePath, Memento m)
+    {
+        try
+        {
+            BinaryFormatter formatter = getFormatter();
+            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                formatter.Serialize(stream, m);
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error serializing Memento\n" + e.Message + e.StackTrace);
+            return false;
+        }
+    }
+    public static Memento LoadMemento(String filePath)
+    {
+        try
+        {
+            BinaryFormatter formatter = getFormatter();
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                Memento m = (Memento)formatter.Deserialize(stream);
+                return m;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error loading Memento\n" + e.Message + e.StackTrace);
+            return null;
+        }
+    }
 
-
-
-    private static SurrogateSelector _selector;
+    /// <summary>
+    /// Returns a BinaryFormatter with a custom SurrogateSelector for Unity Types.
+    /// </summary>
+    /// <returns></returns>
     public static BinaryFormatter getFormatter()
     {
         BinaryFormatter f = new BinaryFormatter();
         f.SurrogateSelector = selector;
         return f;
     }
+
+    private static SurrogateSelector _selector;
 
 
 
